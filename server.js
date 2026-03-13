@@ -20,7 +20,7 @@ app.listen(PORT, () => console.log(`🚀 JᴀʀᴠᎥຮ V6.0 Quant Algo listeni
 // ==========================================
 // ⚙️ CONFIGURATION
 // ==========================================
-const TELEGRAM_BOT_TOKEN = "8587479582:AAGLgQDPnTg2hMRQXT3ZFcUCagdRL29TXXk"; 
+const TELEGRAM_BOT_TOKEN = "8587479582:AAFIQtdL_tJrfqiyG5QAEgJQOjtBLLfykVs"; 
 const TARGET_CHATS = ["1669843747", "-1002613316641"];
 
 let lastUpdateId = 0;
@@ -78,11 +78,22 @@ async function sendTelegram(text) {
             await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ chat_id: chat_id, text: text, parse_mode: 'HTML' }) 
+                body: JSON.stringify({
+                    chat_id: chat_id,
+                    text: text,
+                    parse_mode: 'HTML',
+                    reply_markup: {
+                        keyboard: [
+                            ["📊 Stats", "❤️ Health"],
+                            ["🧠 Patterns", "⚙️ System"]
+                        ],
+                        resize_keyboard: true
+                    }
+                })
             }); 
         } catch(e) {} 
     } 
-} 
+}
 
 async function sendStats(chat_id){
 
@@ -127,10 +138,17 @@ async function sendStats(chat_id){
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
-            chat_id,
-            text:msg,
-            parse_mode:"HTML"
-        })
+    chat_id,
+    text:msg,
+    parse_mode:"HTML",
+    reply_markup:{
+        keyboard:[
+            ["📊 Stats","❤️ Health"],
+            ["🧠 Patterns","⚙️ System"]
+        ],
+        resize_keyboard:true
+    }
+})
     });
 }
 
@@ -157,10 +175,17 @@ async function sendHealth(chat_id){
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
-            chat_id,
-            text:msg,
-            parse_mode:"HTML"
-        })
+    chat_id,
+    text:msg,
+    parse_mode:"HTML",
+    reply_markup:{
+        keyboard:[
+            ["📊 Stats","❤️ Health"],
+            ["🧠 Patterns","⚙️ System"]
+        ],
+        resize_keyboard:true
+    }
+})
     });
 }
 
@@ -194,10 +219,17 @@ async function sendPatterns(chat_id){
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
-            chat_id,
-            text:msg,
-            parse_mode:"HTML"
-        })
+    chat_id,
+    text:msg,
+    parse_mode:"HTML",
+    reply_markup:{
+        keyboard:[
+            ["📊 Stats","❤️ Health"],
+            ["🧠 Patterns","⚙️ System"]
+        ],
+        resize_keyboard:true
+    }
+})
     });
 }
 
@@ -218,10 +250,17 @@ async function sendSystem(chat_id){
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
-            chat_id,
-            text:msg,
-            parse_mode:"HTML"
-        })
+    chat_id,
+    text:msg,
+    parse_mode:"HTML",
+    reply_markup:{
+        keyboard:[
+            ["📊 Stats","❤️ Health"],
+            ["🧠 Patterns","⚙️ System"]
+        ],
+        resize_keyboard:true
+    }
+})
     });
 }
 
@@ -327,7 +366,7 @@ function cooldownGate(){
 
 function shockTrap(list){
 
-    let sizes = list.slice(0,5).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1,6).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
     let last = sizes[0];
     let prevStreak = 1;
@@ -358,15 +397,16 @@ function shockTrap(list){
 
 function liquidityTrap(list){
 
-    let sizes = list.slice(0,5).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1,7).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
-    const pattern = sizes.join('');
+    const pattern = sizes.slice(0,5).join('');
+    const prev = sizes[5];
 
-    if(pattern === "BBBBS"){
+    if(pattern === "BBBBS" && prev === 'B'){
         return { trapped:true, reason:"Liquidity Trap (BBBB→S)" };
     }
 
-    if(pattern === "SSSSB"){
+    if(pattern === "SSSSB" && prev === 'S'){
         return { trapped:true, reason:"Liquidity Trap (SSSS→B)" };
     }
 
@@ -421,7 +461,7 @@ function getConfidence(patternName, patternLength, regime, gravityAligned){
 
 function regimeShield(list){
 
-    let sizes = list.slice(0, 12).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1,13).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
     // -------- FLIP DENSITY --------
     let flips = 0;
@@ -452,7 +492,7 @@ function regimeShield(list){
     }
 
     // -------- DECISION --------
-    if(flips >= 6){
+    if(flips >= 8){
         return { tradable:false, reason:"Flip Storm" };
     }
 
@@ -613,17 +653,55 @@ function patternBooster(patternName, confidence){
     return confidence;
 }
 
+function quantumPatternEngine(patternName, sizes){
+
+    // last 3 momentum
+    const last3 = sizes.slice(0,3).join('');
+
+    // pattern alignment score
+    let score = 0;
+
+    // trend continuation bias
+    if(patternName === "SSSBB" && last3 === "BBB"){
+        score += 12;
+    }
+
+    if(patternName === "BBBSS" && last3 === "SSS"){
+        score += 12;
+    }
+
+    // reversal exhaustion
+    if(patternName === "BBSS" && last3 === "SSB"){
+        score += 8;
+    }
+
+    if(patternName === "SSBB" && last3 === "BBS"){
+        score += 8;
+    }
+
+    // alternating stabilization
+    if(patternName === "BSBS" && last3 === "SBS"){
+        score += 6;
+    }
+
+    if(patternName === "SBSB" && last3 === "BSB"){
+        score += 6;
+    }
+
+    return score;
+}
+
 function marketMakerTrap(list){
 
-    let sizes = list.slice(0,7).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1,10).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
     let flips = 0;
 
-    for(let i=0;i<6;i++){
+    for(let i=0;i<8;i++){
         if(sizes[i] !== sizes[i+1]) flips++;
     }
 
-    if(flips >= 6){
+    if(flips >= 8){
         return { trapped:true, reason:"Market Maker Flip Storm" };
     }
 
@@ -632,7 +710,7 @@ function marketMakerTrap(list){
 
 function flowPressure(list){
 
-    let sizes = list.slice(0,6).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1,7).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
     let small = 0;
     let big = 0;
@@ -650,7 +728,7 @@ function flowPressure(list){
 
 function elitePressure(list){
 
-    let sizes = list.slice(0,8).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1,9).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
     let small = 0;
     let big = 0;
@@ -664,6 +742,72 @@ function elitePressure(list){
     if(big >= 4) return "BUY";
 
     return "NEUTRAL";
+}
+
+function institutionalFlow(list){
+
+    let sizes = list.slice(1,21).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+
+    let small = 0;
+    let big = 0;
+
+    for(let s of sizes){
+
+        if(s === 'S') small++;
+        else big++;
+    }
+
+    if(big >= 13) return "INSTITUTIONAL_BUY";
+
+    if(small >= 13) return "INSTITUTIONAL_SELL";
+
+    return "BALANCED";
+}
+
+function blackSwanDetector(list){
+
+    let sizes = list.slice(1,11).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+
+    let small = 0;
+    let big = 0;
+
+    for(let s of sizes){
+
+        if(s === 'S') small++;
+        else big++;
+    }
+
+    if(big >= 8) return "EXTREME_BUY";
+
+    if(small >= 8) return "EXTREME_SELL";
+
+    return "NORMAL";
+}
+
+function entropyFilter(list){
+
+    let sizes = list.slice(1,11).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+
+    let flips = 0;
+
+    for(let i=0;i<9;i++){
+        if(sizes[i] !== sizes[i+1]) flips++;
+    }
+
+    let small = sizes.filter(s=>s==='S').length;
+    let big = sizes.filter(s=>s==='B').length;
+
+    // randomness score
+    let entropyScore = flips + Math.abs(small-big);
+
+    if(entropyScore >= 11){
+        return {
+            blocked:true,
+            reason:"High Entropy Market"
+        };
+    }
+
+    return { blocked:false };
 }
 
 // ==========================================
@@ -700,7 +844,7 @@ if(state.lossStreak >= 3){
         };
     }
 
-    let sizes = list.slice(0, 6).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1, 7).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
     let forward = sizes.join('');
     let reverse = sizes.slice().reverse().join('');
@@ -708,8 +852,8 @@ if(state.lossStreak >= 3){
     const match = (p)=> forward.endsWith(p);
 
     let small=0,big=0;
-    for(let i=0;i<5;i++){
-        let n = Number(list[i].number);
+    for(let i=1;i<=5;i++){
+    let n = Number(list[i].number);
         if(n<=4) small++; else big++;
     }
 
@@ -827,6 +971,37 @@ if(decision === "SMALL" && pressure === "BUY"){
 }
         
         const flow = flowPressure(list);
+        const institutional = institutionalFlow(list);
+        const blackSwan = blackSwanDetector(list);
+        
+        if(blackSwan !== "NORMAL"){
+
+    return {
+        action:"WAIT",
+        regime:"BLACK_SWAN",
+        confidence:0,
+        reason:"Extreme Market Expansion"
+    };
+
+}
+        
+if(decision === "BIG" && institutional === "INSTITUTIONAL_SELL"){
+    return {
+        action:"WAIT",
+        regime:"INSTITUTIONAL_CONFLICT",
+        confidence:0,
+        reason:"Institutional Sell Pressure"
+    };
+}
+
+if(decision === "SMALL" && institutional === "INSTITUTIONAL_BUY"){
+    return {
+        action:"WAIT",
+        regime:"INSTITUTIONAL_CONFLICT",
+        confidence:0,
+        reason:"Institutional Buy Pressure"
+    };
+}
 
 // Avoid fighting market pressure
 if(decision === "BIG" && flow === "SELL_PRESSURE"){
@@ -897,6 +1072,9 @@ if(decision === "SMALL"){
 
 confidence = evolvePattern(patternName, confidence);
 confidence = patternBooster(patternName, confidence);
+
+// Quantum Pattern Boost
+confidence += quantumPatternEngine(patternName, sizes);
 if(confidence < 55){
     return {
         action:"WAIT",
@@ -982,8 +1160,9 @@ async function tick() {
 
     // 🛡 Martingale protection
     if(state.lossStreak >= 2){
-        state.waitCount += 3;
-    }
+    state.waitCount += 3;
+    state.waitCount = Math.min(state.waitCount, 50);
+}
 
 }
 
@@ -1064,6 +1243,28 @@ Consider disabling this pattern.`
     if(!state.activePrediction) {
 
     const signal = analyzeTrendsV7(list);
+    
+    const entropy = entropyFilter(list);
+
+if(entropy.blocked){
+
+    state.waitCount++;
+
+    if(state.waitCount % 10 === 1){
+
+        let msg = `🧠 <b>𝐄𝐍𝐓𝐑𝐎𝐏𝐘 𝐅𝐈𝐋𝐓𝐄𝐑 𝐀𝐂𝐓𝐈𝐕𝐄</b>\n`;
+        msg += dividerVersion();
+        msg += `🎯 Period: <code>${targetIssue.slice(-4)}</code>\n`;
+        msg += `⚠️ Random Market Structure\n`;
+        msg += `🧠 <i>${entropy.reason}</i>`;
+        msg += dividerOnline();
+
+        await sendTelegram(msg);
+    }
+
+    saveState();
+    return;
+}
 
 // ❄️ COOLDOWN MODE
 const coolBlock = cooldownGate();
@@ -1210,7 +1411,7 @@ if(signal.action !== "WAIT"){
         ||
 
         // ⚖️ Balanced Mixed Entry
-        (signal.regime === "STABLE" && signal.confidence >= 75)
+        (signal.regime === "STABLE" && signal.confidence >= 68)
     )
 ) {
 
@@ -1299,10 +1500,10 @@ async function checkCommands(){
 
             lastUpdateId = update.update_id;
 
-            if(!update.message) continue;
+            if(!update.message || !update.message.text) continue;
 
             const chat_id = update.message.chat.id;
-            const text = update.message.text;
+            const text = (update.message.text || "").trim();
 
             if(text === "/stats" || text === "📊 Stats"){
     await sendStats(chat_id);
