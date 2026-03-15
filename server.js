@@ -1264,17 +1264,17 @@ async function tick() {
 
     if(state.currentLevel >= FUND_LEVELS.length - 1){
 
-        if(state.activePrediction && state.activePrediction.pattern){
+    if(state.activePrediction && state.activePrediction.pattern){
 
-            const p = state.activePrediction.pattern;
+        const p = state.activePrediction.pattern;
 
-            if(state.patternStats[p]){
-    state.patternStats[p].ladderFails++;
+        if(state.patternStats[p]){
+            state.patternStats[p].ladderFails++;
 
-    if(state.patternStats[p].ladderFails >= 2){
-        state.patternStats[p].cooldown = 40;
-    }
-}
+            if(state.patternStats[p].ladderFails >= 2){
+                state.patternStats[p].cooldown = 40;
+            }
+        }
 
         state.currentLevel = Math.floor(FUND_LEVELS.length / 2);
         state.recoveryMode = true;
@@ -1284,7 +1284,8 @@ async function tick() {
         await sendTelegram(`🛡️ <b>RECOVERY MODE ACTIVATED</b>
 Post-loss survival engaged.
 Cooling before next entry.`);
-    }
+    }  // ✅ ADD THIS LINE
+}
 
     let currentAccuracy = state.totalSignals > 0 
         ? Math.round((state.wins / state.totalSignals) * 100) 
