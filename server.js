@@ -20,7 +20,7 @@ app.listen(PORT, () => console.log(`🚀 JᴀʀᴠᎥຮ V6.0 Quant Algo listeni
 // ==========================================
 // ⚙️ CONFIGURATION
 // ==========================================
-const TELEGRAM_BOT_TOKEN = "8587479582:AAFIQtdL_tJrfqiyG5QAEgJQOjtBLLfykVs"; 
+const TELEGRAM_BOT_TOKEN = "8587479582:AAHyG3qwVBC3EuuV6EomlAIj3K_fJn_zFu0"; 
 const TARGET_CHATS = ["1669843747", "-1002613316641"];
 
 let lastUpdateId = 0;
@@ -397,16 +397,16 @@ function shockTrap(list){
 
 function liquidityTrap(list){
 
-    let sizes = list.slice(1,7).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1,8).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
     const pattern = sizes.slice(0,5).join('');
     const prev = sizes[5];
 
-    if(pattern === "BBBBS" && prev === 'B'){
+    if(pattern === "BBBBBS" && prev === 'B'){
         return { trapped:true, reason:"Liquidity Trap (BBBB→S)" };
     }
 
-    if(pattern === "SSSSB" && prev === 'S'){
+    if(pattern === "SSSSSB" && prev === 'S'){
         return { trapped:true, reason:"Liquidity Trap (SSSS→B)" };
     }
 
@@ -492,13 +492,13 @@ function regimeShield(list){
     }
 
     // -------- DECISION --------
-    if(flips >= 8){
-        return { tradable:false, reason:"Flip Storm" };
-    }
+    if(flips >= 9){
+    return { tradable:false, reason:"Flip Storm" };
+}
 
-    if(altCount >= 4){
-        return { tradable:false, reason:"Alternation Trap" };
-    }
+if(altCount >= 6){
+    return { tradable:false, reason:"Alternation Trap" };
+}
 
     if(expansion){
         return { tradable:false, reason:"Expansion Chaos" };
@@ -691,6 +691,79 @@ function quantumPatternEngine(patternName, sizes){
     return score;
 }
 
+function patternStrengthEngine(patternName, sizes){
+
+    let score = 0;
+
+    const last5 = sizes.slice(0,5).join('');
+    const last3 = sizes.slice(0,3).join('');
+
+    // trend continuation boost
+    if(patternName === "SSSBB" && last3 === "BBB"){
+        score += 10;
+    }
+
+    if(patternName === "BBBSS" && last3 === "SSS"){
+        score += 10;
+    }
+
+    // exhaustion detection
+    if(patternName === "BBSS" && last3 === "SSB"){
+        score += 6;
+    }
+
+    if(patternName === "SSBB" && last3 === "BBS"){
+        score += 6;
+    }
+
+    // alternating stabilization
+    if(patternName === "BSBS" && last3 === "SBS"){
+        score += 5;
+    }
+
+    if(patternName === "SBSB" && last3 === "BSB"){
+        score += 5;
+    }
+
+    return score;
+}
+
+// ==========================================
+// 🧠 V10 ELITE PATTERN ENGINE
+// ==========================================
+function elitePatternEngine(patternName, sizes){
+
+    let score = 0;
+
+    const last4 = sizes.slice(0,4).join('');
+    const last6 = sizes.slice(0,6).join('');
+
+    // Strong continuation structures
+    if(patternName === "SSSBB" && last4 === "BBBB"){
+        score += 15;
+    }
+
+    if(patternName === "BBBSS" && last4 === "SSSS"){
+        score += 15;
+    }
+
+    // Trend pressure build
+    if(last6 === "SSSBBB"){
+        score += 8;
+    }
+
+    if(last6 === "BBBSSS"){
+        score += 8;
+    }
+
+    // Pattern stability
+    if(patternName === "SSSBB" || patternName === "BBBSS"){
+        score += 6;
+    }
+
+    return score;
+}
+
 function marketMakerTrap(list){
 
     let sizes = list.slice(1,10).map(i => Number(i.number) <= 4 ? 'S' : 'B');
@@ -701,7 +774,7 @@ function marketMakerTrap(list){
         if(sizes[i] !== sizes[i+1]) flips++;
     }
 
-    if(flips >= 8){
+    if(flips >= 9){
         return { trapped:true, reason:"Market Maker Flip Storm" };
     }
 
@@ -710,7 +783,7 @@ function marketMakerTrap(list){
 
 function flowPressure(list){
 
-    let sizes = list.slice(1,7).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+    let sizes = list.slice(1,10).map(i => Number(i.number) <= 4 ? 'S' : 'B');
 
     let small = 0;
     let big = 0;
@@ -720,8 +793,8 @@ function flowPressure(list){
         else big++;
     }
 
-    if(small >= 4) return "SELL_PRESSURE";
-    if(big >= 4) return "BUY_PRESSURE";
+    if(small >= 6) return "SELL_PRESSURE";
+if(big >= 6) return "BUY_PRESSURE";
 
     return "NEUTRAL";
 }
@@ -800,7 +873,7 @@ function entropyFilter(list){
     // randomness score
     let entropyScore = flips + Math.abs(small-big);
 
-    if(entropyScore >= 11){
+    if(entropyScore >= 13){
         return {
             blocked:true,
             reason:"High Entropy Market"
@@ -845,6 +918,18 @@ if(state.lossStreak >= 3){
     }
 
     let sizes = list.slice(1, 7).map(i => Number(i.number) <= 4 ? 'S' : 'B');
+
+// 🎰 Pattern Frequency Filter
+let lastPattern = sizes.slice(0,4).join('');
+
+if(lastPattern === "BSBS" || lastPattern === "SBSB"){
+    return {
+        action:"WAIT",
+        regime:"CASINO_LOOP",
+        confidence:0,
+        reason:"Pattern Oscillation"
+    };
+}
 
     let forward = sizes.join('');
     let reverse = sizes.slice().reverse().join('');
@@ -900,6 +985,16 @@ else if(match('SBSB')){
         regime:"MIXED",
         confidence:0,
         reason:"No Pattern Alignment"
+    };
+}
+
+// 🚫 Neutral Pattern Filter
+if(patternName === "BSBS" || patternName === "SBSB"){
+    return {
+        action:"WAIT",
+        regime:"NEUTRAL_PATTERN",
+        confidence:0,
+        reason:"Neutral Pattern Filter"
     };
 }
 
@@ -1045,8 +1140,7 @@ let prev = sizes[1];
 
 // Momentum Confirmation Filter
 if(decision === "BIG"){
-
-    if(last !== 'B' && prev !== 'B'){
+    if(last !== 'B'){
         return {
             action:"WAIT",
             regime:"MOMENTUM_FAIL",
@@ -1054,12 +1148,10 @@ if(decision === "BIG"){
             reason:"Big Momentum Not Confirmed"
         };
     }
-
 }
 
 if(decision === "SMALL"){
-
-    if(last !== 'S' && prev !== 'S'){
+    if(last !== 'S'){
         return {
             action:"WAIT",
             regime:"MOMENTUM_FAIL",
@@ -1067,7 +1159,6 @@ if(decision === "SMALL"){
             reason:"Small Momentum Not Confirmed"
         };
     }
-
 }
 
 confidence = evolvePattern(patternName, confidence);
@@ -1075,6 +1166,10 @@ confidence = patternBooster(patternName, confidence);
 
 // Quantum Pattern Boost
 confidence += quantumPatternEngine(patternName, sizes);
+confidence += patternStrengthEngine(patternName, sizes);
+confidence += elitePatternEngine(patternName, sizes);
+confidence = Math.min(confidence, 95);
+confidence = Math.max(confidence, 40);
 if(confidence < 55){
     return {
         action:"WAIT",
@@ -1173,9 +1268,12 @@ async function tick() {
             const p = state.activePrediction.pattern;
 
             if(state.patternStats[p]){
-                state.patternStats[p].ladderFails++;
-            }
-        }
+    state.patternStats[p].ladderFails++;
+
+    if(state.patternStats[p].ladderFails >= 2){
+        state.patternStats[p].cooldown = 40;
+    }
+}
 
         state.currentLevel = Math.floor(FUND_LEVELS.length / 2);
         state.recoveryMode = true;
